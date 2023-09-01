@@ -14,6 +14,7 @@ function SearchOrder() {
   return (
     <form onSubmit={handleSubmit}>
       <input
+        name="searchOrder"
         value={query}
         placeholder="Search order #"
         onChange={(e) => setQuery(e.target.value)}
