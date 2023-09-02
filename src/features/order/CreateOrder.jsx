@@ -1,11 +1,12 @@
 // import { useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import { createOrder } from "../../services/apiRestaurant";
+import Button from "../../ui/Button";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
-    str
+    str,
   );
 
 const fakeCart = [
@@ -40,57 +41,96 @@ function CreateOrder() {
   const formErrors = useActionData();
 
   return (
-    <div>
-      <h2>Ready to order? Let&#39;s go!</h2>
+    <div className="px-4 py-6 ">
+      <h2 className="mb-8 text-xl font-semibold ">
+        Ready to order? Let&#39;s go!
+      </h2>
 
       <Form method="POST">
-        <div>
-          <label htmlFor="customer">First Name</label>
-          <input id="customer" type="text" name="customer" required />
+        <div
+          className="mb-5 flex flex-col gap-2 
+        sm:flex-row sm:items-center"
+        >
+          <label className="sm:basis-40" htmlFor="customer">
+            First Name
+          </label>
+          <div className="grow">
+            <input
+              id="customer"
+              placeholder="First Name"
+              className="input"
+              type="text"
+              name="customer"
+              required
+            />
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="phone">Phone number</label>
-          <div>
+        <div
+          className="mb-5 flex flex-col gap-2 
+        sm:flex-row sm:items-center"
+        >
+          <label className="sm:basis-40" htmlFor="phone">
+            Phone number
+          </label>
+          <div className="grow">
             <input
               id="phone"
               type="tel"
               autoComplete="true"
               name="phone"
               required
+              placeholder="Phone Number"
+              className="input"
             />
-            {formErrors?.phone && <p>{formErrors.phone}</p>}
+            {formErrors?.phone && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {formErrors.phone}
+              </p>
+            )}
           </div>
         </div>
 
-        <div>
-          <label htmlFor="address">Address</label>
-          <div>
+        <div
+          className="mb-5 flex flex-col gap-2 
+        sm:flex-row sm:items-center"
+        >
+          <label className="sm:basis-40" htmlFor="address">
+            Address
+          </label>
+          <div className="grow">
             <input
               id="address"
               type="text"
               autoComplete="true"
               name="address"
               required
+              placeholder="Address"
+              className="input"
             />
           </div>
         </div>
 
-        <div>
+        <div className="mb-12 flex items-center gap-5">
           <input
             type="checkbox"
             name="priority"
             id="priority"
+            className="h-6 w-6 accent-yellow-400
+            focus:outline-none focus:ring
+            focus:ring-yellow-300 focus:ring-offset-2"
             // value={withPriority}
             // onChange={(e) => setWithPriority(e.target.checked)}
           />
-          <label htmlFor="priority">Want to yo give your order priority?</label>
+          <label className="font-medium" htmlFor="priority">
+            Want to yo give your order priority?
+          </label>
         </div>
         <input type="hidden" name="cart" value={JSON.stringify(cart)} />
         <div>
-          <button disabled={isSubmitting}>
+          <Button disabled={isSubmitting} type="primary">
             {isSubmitting ? "Placing Order..." : "Order now"}
-          </button>
+          </Button>
         </div>
       </Form>
     </div>
