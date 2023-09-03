@@ -13,6 +13,7 @@ function Button({ children, disabled, to, type, onClick }) {
   const styles = {
     primary: base + " text-sm  px-4 py-3 md:px-6 md:py-4",
     small: base + " px-4 py-2 md:px-5 md:py-2.5 text-xs",
+    round: base + " px-2.5 py-1 md:px-3.5 md:py-2 text-sm",
     secondary: `text-sm inline-block px-3.5 py-2.5 md:px-5.5 md:py-3.5
     rounded-full border-2 border-stone-300
     bg-transparent 
@@ -29,10 +30,12 @@ function Button({ children, disabled, to, type, onClick }) {
       </Link>
     );
 
-if(onClick)  return (
-  <button onClick={onClick} disabled={disabled} className={styles[type]}>
-    {children}
-  </button>);
+  if (onClick)
+    return (
+      <button onClick={onClick} disabled={disabled} className={styles[type]}>
+        {children}
+      </button>
+    );
 
   return (
     <button disabled={disabled} className={styles[type]}>
