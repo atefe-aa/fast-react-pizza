@@ -4,10 +4,11 @@ import { useState } from "react";
 import { createOrder } from "../../services/apiRestaurant";
 import Button from "../../ui/Button";
 import EmptyCart from "../cart/EmptyCart";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCart, cleareCart, getTotalCartPrice } from "../cart/cartSlice";
 import store from "../../store";
-import {formatCurrency} from "../../utils/helpers"
+import { formatCurrency } from "../../utils/helpers";
+import { fetchAddress } from "../user/userSlice";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -21,10 +22,18 @@ function CreateOrder() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const formErrors = useActionData();
-  const username = useSelector((state) => state.user.userName);
+  const {
+    userName,
+    error: errorAddress,
+    address,
+    position,
+    status: addressStatus,
+  } = useSelector((state) => state.user);
+  const isLoading = addressStatus === "loading";
   const totalCartPrice = useSelector(getTotalCartPrice);
   const priorityPrice = withPriority ? totalCartPrice * 0.2 : 0;
   const totalPrice = totalCartPrice + priorityPrice;
+  const dispatch = useDispatch();
 
   if (!cart.length) return <EmptyCart />;
 
@@ -49,7 +58,7 @@ function CreateOrder() {
               className="input"
               type="text"
               name="customer"
-              defaultValue={username}
+              defaultValue={userName}
               required
             />
           </div>
@@ -81,8 +90,8 @@ function CreateOrder() {
         </div>
 
         <div
-          className="mb-5 flex flex-col gap-2 
-        sm:flex-row sm:items-center"
+          className="relative mb-5 flex flex-col 
+        gap-2 sm:flex-row sm:items-center"
         >
           <label className="sm:basis-40" htmlFor="address">
             Address
@@ -94,10 +103,34 @@ function CreateOrder() {
               autoComplete="true"
               name="address"
               required
+              defaultValue={address}
+              disabled={isLoading}
               placeholder="Address"
               className="input"
             />
+            {addressStatus === "error" && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            )}
           </div>
+          {!position.latitude && !position.logitude && (
+            <span
+              className="absolute right-[3px]
+             top-[35px] z-50 sm:right-[4px] sm:top-[3px] md:top-[5px]"
+            >
+              <Button
+                disabled={isLoading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(fetchAddress());
+                }}
+                type="small"
+              >
+                Get Address
+              </Button>
+            </span>
+          )}
         </div>
 
         <div className="mb-12 flex items-center gap-5">
@@ -118,9 +151,20 @@ function CreateOrder() {
           </label>
         </div>
         <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+        <input
+          type="hidden"
+          name="position"
+          value={
+            position.longitude && position.latitude
+              ? `${position.longitude},${position.latitude}`
+              : ""
+          }
+        />
         <div>
-          <Button disabled={isSubmitting} type="primary">
-            {isSubmitting ? "Placing Order..." : `Order now From ${formatCurrency(totalPrice)}`}
+          <Button disabled={isSubmitting || isLoading} type="primary">
+            {isSubmitting
+              ? "Placing Order..."
+              : `Order now From ${formatCurrency(totalPrice)}`}
           </Button>
         </div>
       </Form>
@@ -138,6 +182,7 @@ export async function action({ request }) {
     cart: JSON.parse(data.cart),
   };
 
+  console.log(order);
   const errors = {};
   if (!isValidPhone(order.phone))
     errors.phone =
